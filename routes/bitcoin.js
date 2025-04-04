@@ -177,4 +177,16 @@ router.get('/validateaddress/:address', async (req, res) => {
   }
 });
 
+// 주소 기반 UTXO 스캔
+// bitcoin-cli scantxoutset start '[{ \"desc\": \"addr(...)\" }]'
+router.post('/scantxoutset', async (req, res) => {
+    const { desc } = req.body;
+    try {
+      const result = await callRpcMethod('scantxoutset', ['start', [{ desc }]]);
+      res.json(result);
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+});
+
 module.exports = router;
