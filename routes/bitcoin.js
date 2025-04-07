@@ -177,16 +177,17 @@ router.get('/validateaddress/:address', async (req, res) => {
   }
 });
 
-// 주소 기반 UTXO 스캔
-// bitcoin-cli scantxoutset start '[{ \"desc\": \"addr(...)\" }]'
-router.post('/scantxoutset', async (req, res) => {
-    const { desc } = req.body;
+// 특정 주소의 관련 트랜잭션 ID 목록 조회
+// bitcoin-cli scantxoutset start '[{"desc": "addr(...)"}]'
+router.get('/gettransactionsbyaddress/:address', async (req, res) => {
+    const { address } = req.params;
     try {
-      const result = await callRpcMethod('scantxoutset', ['start', [{ desc }]]);
-      res.json(result);
+      const scanResult = await callRpcMethod('scantxoutset', ['start', [{ desc: `addr(${address})` }]]);
+      const txids = (scanResult.unspents || []).map(u => u.txid);
+      res.json({ txids });
     } catch (err) {
       res.status(500).json({ error: err.message });
     }
-});
+  });
 
 module.exports = router;
